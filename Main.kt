@@ -3,26 +3,38 @@ package wordsvirtuoso
 import java.io.File
 import java.io.IOException
 
-fun main() {
-    println("Input the words file:")
-    val filename = readln()
+fun main(args: Array<String>) {
     try {
-        val words = readAllWords(filename)
-        var errorCount = 0
-        words.forEach { word ->
-            if (isNotValidWord(word)) errorCount++
-        }
+        if (args.size != 2) throw RuntimeException("Error: Wrong number of arguments.")
 
-        if (errorCount == 0)
-            println("All words are valid!")
-        else
-            println("Warning: $errorCount invalid words were found in the $filename file.")
+        val wordsFilename = args[0]
+        val candidatesFilename = args[1]
 
-    } catch (e: IOException) {
-        println("Error: The words file $filename doesn't exist.")
+        val words = readWords(wordsFilename)
+        val invalidWords = countInvalidWords(words)
+
+        if (invalidWords != 0) throw RuntimeException("Error: $invalidWords invalid words were found in the $wordsFilename file.")
+
+        val candidates = readCandidates(candidatesFilename)
+        val invalidCandidates = countInvalidWords(candidates)
+
+        if (invalidCandidates != 0) throw RuntimeException("Error: $invalidCandidates invalid words were found in the $candidatesFilename file.")
+
+        val notIncludedCandidatesInWords = countNotIncludedCandidatesInWords(candidates, words)
+
+        if (notIncludedCandidatesInWords != 0) throw RuntimeException("Error: $notIncludedCandidatesInWords candidate words are not included in the $wordsFilename file.")
+
+        println("Words Virtuoso")
+
+    } catch (e: Exception) {
+        println(e.message)
     }
 
 }
+
+private fun countNotIncludedCandidatesInWords(candidates: Set<String>, words: Set<String>) = candidates.count { !words.contains(it) }
+
+private fun countInvalidWords(words: Set<String>) = words.count { isNotValidWord(it) }
 
 private fun isNotValidWord(word: String): Boolean {
     return isNotFiveLetterWord(word) || hasNotEnglishCharacters(word) || hasDuplicateLetters(word)
@@ -43,4 +55,18 @@ private fun hasDuplicateLetters(word: String): Boolean {
     return false
 }
 
-private fun readAllWords(filename: String) = File(filename).useLines { it.toSet() }
+private fun readWords(filename: String): Set<String> {
+    try {
+        return File(filename).useLines { it.map { word -> word.lowercase() }.toSet() }
+    } catch (e: IOException) {
+        throw RuntimeException("Error: The words file $filename doesn't exist.")
+    }
+}
+
+private fun readCandidates(filename: String): Set<String> {
+    try {
+        return File(filename).useLines { it.map { word -> word.lowercase() }.toSet() }
+    } catch (e: IOException) {
+        throw RuntimeException("Error: The candidate words file $filename doesn't exist.")
+    }
+}
