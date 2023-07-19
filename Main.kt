@@ -2,6 +2,7 @@ package wordsvirtuoso
 
 import java.io.File
 import java.io.IOException
+import java.util.Random
 
 fun main(args: Array<String>) {
     try {
@@ -25,6 +26,59 @@ fun main(args: Array<String>) {
         if (notIncludedCandidatesInWords != 0) throw RuntimeException("Error: $notIncludedCandidatesInWords candidate words are not included in the $wordsFilename file.")
 
         println("Words Virtuoso")
+
+        val secretWord = candidates.elementAt(Random().nextInt(candidates.size))
+
+        while (true) {
+            println("Input a 5-letter word:")
+            val guessWord = readln()
+
+            if (guessWord == "exit") {
+                println("The game is over.")
+                break
+            }
+
+            if (isNotFiveLetterWord(guessWord)) {
+                println("The input isn't a 5-letter word.")
+                continue
+            }
+
+            if (hasNotEnglishCharacters(guessWord)) {
+                println("One or more letters of the input aren't valid.")
+                continue
+            }
+
+            if (hasDuplicateLetters(guessWord)) {
+                println("The input has duplicate letters.")
+                continue
+            }
+
+            if (!words.contains(guessWord.lowercase())) {
+                println("The input word isn't included in my words list.")
+                continue
+            }
+
+            val builder = StringBuilder()
+            for (i in guessWord.indices) {
+                if (guessWord[i] == secretWord[i]) {
+                    builder.append(guessWord[i].uppercase())
+                } else if (secretWord.contains(guessWord[i].lowercase())) {
+                    builder.append(guessWord[i].lowercase())
+                } else {
+                    builder.append("_")
+                }
+            }
+
+            if (builder.matches(Regex("[A-Z]+"))) {
+                println("Correct!")
+                break
+            }
+
+            println(builder)
+
+        }
+
+
 
     } catch (e: Exception) {
         println(e.message)
