@@ -64,21 +64,23 @@ fun main(args: Array<String>) {
             }
 
             val builder = StringBuilder()
+            var matches = 0
             for (i in guessWord.indices) {
                 if (guessWord[i] == secretWord[i]) {
-                    builder.append(guessWord[i].uppercase())
+                    builder.append(guessWord[i].uppercase().green())
+                    matches++
                 } else if (secretWord.contains(guessWord[i].lowercase())) {
-                    builder.append(guessWord[i].lowercase())
+                    builder.append(guessWord[i].uppercase().yellow())
                 } else {
-                    wrongChars.add(guessWord[i].uppercase().first())
-                    builder.append("_")
+                    wrongChars.add(guessWord[i].uppercaseChar())
+                    builder.append(guessWord[i].uppercase().grey())
                 }
             }
 
             clueStrings.add(builder.toString())
             println(clueStrings.joinToString("\n\r"))
 
-            if (builder.matches(Regex("[A-Z]+"))) {
+            if (matches == secretWord.length) {
                 println("Correct!")
                 val duration = System.currentTimeMillis() - startTime
                 if (turn == 1)
@@ -89,7 +91,7 @@ fun main(args: Array<String>) {
             }
 
             println()
-            println(wrongChars.sorted().joinToString(""))
+            println(wrongChars.sorted().joinToString("").azure())
             println()
             turn++
 
@@ -100,6 +102,14 @@ fun main(args: Array<String>) {
     }
 
 }
+
+private fun String.green() = "\u001B[48:5:10m$this\u001B[0m"
+
+private fun String.yellow() = "\u001B[48:5:11m$this\u001B[0m"
+
+private fun String.grey() = "\u001B[48:5:7m$this\u001B[0m"
+
+private fun String.azure() = "\u001B[48:5:14m$this\u001B[0m"
 
 private fun countNotIncludedCandidatesInWords(candidates: Set<String>, words: Set<String>) = candidates.count { !words.contains(it) }
 

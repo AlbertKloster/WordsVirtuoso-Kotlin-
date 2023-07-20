@@ -1,142 +1,50 @@
-# Stage 5/6: Game enhancements
+# Stage 6/6: Colors
 ## Description
-The core game is ready, but the final touches remain.
+In this stage, let's add some colors to the clue strings.
 
-Let's add a dab of challenge to the game. Commend the users when they are successful by considering two indicators. The first is the <b>number of turns</b> (how many inputs) until the player finds the solution (including the erroneous input). The second is the time the player took to find the solution. That is, from the moment the first question is printed to the moment when the success message is printed.
+Change the structure of the clue string now, they should be in upper case, with different background color for each letter. These colors are:
 
-You can use the <a href="https://www.baeldung.com/kotlin/measure-elapsed-time">Measuring Elapsed Time in Kotlin</a> tutorial to measure the time. The simplest solution is to use `System.currentTimeMillis()` to measure duration in <b>milliseconds</b> as in the following example:
-```
-var start = System.currentTimeMillis()
-// Code to measure the execution time
-var end = System.currentTimeMillis()
-val duration = end - start  // Milliseconds as a Long
-```
+- <b style="color: green">Green</b> if the letter in the guess word occurs at the same position as in the secret word.
+- <b style="color: yellow">Yellow</b> if the letter occurs but in some other position.
+- <b style="grey">Grey</b> in any other case.
 
-Also, print the clue strings from the previous tries after each valid input in the order they occurred (see Examples 1 and 2).
+For example:
 
-The player should also have the wrong characters from all the previous tries at their disposal. Print them in alphabetical order, without spaces or anything else between them, in uppercase. This way, the player will have all the available information gathered together (see Examples 1 and 2).
+| Secret word | Guess word | Clue string                                       |
+|-------------|------------|---------------------------------------------------|
+| `spare`     | `steak`    | ![steak ansi colors green grey yellow](steak.png) |
+| `clone`     | `cloth`    | ![cloth ansi colors green grey](cloth.png)        |
+| `snack`     | `daisy`    | ![daisy ansi colors grey yellow](daisy.png)       |
+| `liner`     | `datum`    | ![datum ansi colors grey](datum.png)              |
+
+For setting the letter background colors, use the 8-bit ANSI colors (256 coloring scheme). More specifically, the color sequences are:
+
+| Color | Sequence |
+|-------|----------|
+| Green | `\u001B[48:5:10m<letter>\u001B[0m` |
+| Yellow | `\u001B[48:5:11m<letter>\u001B[0m` |
+| Grey | `\u001B[48:5:7m<letter>\u001B[0m` |
+
+Where `<letter>` is the letter the background color of which we want to change. The clue word letters should be individually colored.
+
+The wrong letter printouts will have an azure color background — ![aenort ansi colors azure](aenort.png)
+
+For this, use `\u001B[48:5:14m<wrong letters>\u001B[0m` , where `<wrong letters>` is the wrong letters' list. The wrong letters should be <b>group colored</b>.
 
 ## Objectives
-- If players input an invalid word, print an error message and ask for another input;
-- If players find the secret word on the first try, print the word in upper case, the line `Amazing luck! The solution was found at once.` and exit (see Example 3).
-- Otherwise, print the clue strings with the valid input. They should appear in the order of the input (the first one on top and the last at the bottom). Then print all the wrong characters from all the tries in alphabetical order, upper case, without any separators in between;
-- When the user guesses the word (on the 2nd+ attempt), print all the clue strings (but not the wrong characters), `The solution was found after <turns> tries in <time lapsed> seconds.`, and exit, where `<turns>` is how many times the player input words (including wrong input); `<time lapsed>` is the time in seconds.
+Implement the coloring scheme as defined in the Description. Each
 
 ## Examples
-The greater-than symbol followed by a space (`> `) represents the user input. Note that it's not part of the input.
+<i>The following examples are images, so the output print color is evident. The user input is the text with in green.</i>
 
 <b>Example 1:</b> <i>normal execution</i>
-```
-Words Virtuoso
 
-Input a 5-letter word:
-> train
-
-tr___
-
-AIN
-
-Input a 5-letter word:
-> scope
-
-tr___
-S_O__
-
-ACEINP
-
-Input a 5-letter word:
-> score
-
-tr___
-S_O__
-S_OR_
-
-ACEINP
-
-Input a 5-letter word:
-> storm
-
-tr___
-S_O__
-S_OR_
-STORM
-
-Correct!
-The solution was found after 4 tries in 54 seconds.
-```
+![words virtuoso ansi colors gameplay](example1.png)
 
 <b>Example 2:</b> <i>normal execution</i>
-```
-Words Virtuoso
 
-Input a 5-letter word:
-> smile
+![words virtuoso ansi colors gameplay](example2.png)
 
-_____
+<b>Example 3:</b> <i>secret word found on the first try</i>
 
-EILMS
-
-Input a 5-letter word:
-> speak
-
-_____
-___a_
-
-EIKLMPS
-
-Input a 5-letter word:
-> basic
-
-_____
-___a_
-Ba___
-
-CEIKLMPS
-
-Input a 5-letter word:
-> begin
-
-_____
-___a_
-Ba___
-B___n
-
-CEGIKLMPS
-
-Input a 5-letter word:
-> brain
-
-_____
-___a_
-Ba___
-B___n
-BRA_n
-
-CEGIKLMPS
-
-Input a 5-letter word:
-> brand
-
-_____
-___a_
-Ba___
-B___n
-BRA_n
-BRAND
-
-Correct!
-The solution was found after 7 tries in 108 seconds.
-```
-
-<b>Example 3:</b> <i>secret word guessed on the first try</i>
-```
-Words Virtuoso
-
-Input a 5-letter word:
-swift
-
-SWIFT
-
-Correct!
-Amazing luck! The solution was found at once.
-```
+![words virtuoso ansi colors gameplay](example3.png)
