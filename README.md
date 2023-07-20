@@ -1,107 +1,142 @@
-# Stage 4/6: Play the game
+# Stage 5/6: Game enhancements
 ## Description
-Let's implement the core logic of the game. Create a game loop where the program asks players to guess a secret word and tell whether it was a success.
+The core game is ready, but the final touches remain.
 
-First of all, the program must randomly select a word from the candidate words list. This secret word is changed every time players restart the game. For choosing this word, use the `random` Kotlin class and the `nextInt()` function.
+Let's add a dab of challenge to the game. Commend the users when they are successful by considering two indicators. The first is the <b>number of turns</b> (how many inputs) until the player finds the solution (including the erroneous input). The second is the time the player took to find the solution. That is, from the moment the first question is printed to the moment when the success message is printed.
 
-The code from the previous stage shouldn't be changed. In this stage you will build on that code. After printing the game title (in the previous stage), the program should ask players to guess the secret word. If the guessed word is the secret one, the game ends. If the word isn't a secret one, the program informs the player which letters of the input word are in the secret word. It also notifies the player if any of these letters has the same position in the secret word.
+You can use the <a href="https://www.baeldung.com/kotlin/measure-elapsed-time">Measuring Elapsed Time in Kotlin</a> tutorial to measure the time. The simplest solution is to use `System.currentTimeMillis()` to measure duration in <b>milliseconds</b> as in the following example:
+```
+var start = System.currentTimeMillis()
+// Code to measure the execution time
+var end = System.currentTimeMillis()
+val duration = end - start  // Milliseconds as a Long
+```
 
-After a word's input, the program should print it again by making the following changes (the <b>clue string</b>):
-- If a letter in the guess word is at the same position as in the secret word, print it in the uppercase.
-- If it exists, but in other position, then print it in the lowercase.
-- And finally, if a letter doesn't exist in the secret word, print an underscore `_` instead.
+Also, print the clue strings from the previous tries after each valid input in the order they occurred (see Examples 1 and 2).
 
-For example:
-
-| Secret word | Guess word | Clue string |
-|-------------|------------|-------------|
-| write       | trail      | tR_i_       |
-| house       | hound      | HOU__       |
-| point       | train      | t__in       |
-| solve       | batch      | _____       |
+The player should also have the wrong characters from all the previous tries at their disposal. Print them in alphabetical order, without spaces or anything else between them, in uppercase. This way, the player will have all the available information gathered together (see Examples 1 and 2).
 
 ## Objectives
-The code from the previous stage shouldn't be altered.
-
-After printing the name of the game `Words Virtuoso`, implement the following:
-
-1. Choose a secret word from the candidate words file.
-2. Ask the player for input with the prompt `Input a 5-letter word:`. The input is case-insensitive.
-3. The player can quit the game at any time, by inputting the word `exit`. In this case, print `The game is over.` and exit.
-4. If the input is the same as the secret word, print `Correct!` and exit.
-5. If the input is invalid, print an error message (described below) and go to step 2.
-6. In any other case, print the clue string (created as described at the description).
-7. Go to Step 2.
-
-The player input should be checked for errors (step 4). So, if the input:
-- isn't a five-letter word, print `The input isn't a 5-letter word.`
-- has at least one invalid character (that is, not in `A` to `Z`), print `One or more letters of the input aren't valid.`
-- has duplicate letters, print `The input has duplicate letters.`
-- isn't in the words' list, print `The input word isn't included in my words list.`
-
-The order of checking should be the same as above.
+- If players input an invalid word, print an error message and ask for another input;
+- If players find the secret word on the first try, print the word in upper case, the line `Amazing luck! The solution was found at once.` and exit (see Example 3).
+- Otherwise, print the clue strings with the valid input. They should appear in the order of the input (the first one on top and the last at the bottom). Then print all the wrong characters from all the tries in alphabetical order, upper case, without any separators in between;
+- When the user guesses the word (on the 2nd+ attempt), print all the clue strings (but not the wrong characters), `The solution was found after <turns> tries in <time lapsed> seconds.`, and exit, where `<turns>` is how many times the player input words (including wrong input); `<time lapsed>` is the time in seconds.
 
 ## Examples
 The greater-than symbol followed by a space (`> `) represents the user input. Note that it's not part of the input.
 
-<b>Example 1:</b> <i>standard execution with arguments: `words.txt candidates.txt`</i>
+<b>Example 1:</b> <i>normal execution</i>
 ```
 Words Virtuoso
 
 Input a 5-letter word:
 > train
-_r_IN
+
+tr___
+
+AIN
 
 Input a 5-letter word:
-> round
-RO_n_
+> scope
+
+tr___
+S_O__
+
+ACEINP
 
 Input a 5-letter word:
-> robin
+> score
+
+tr___
+S_O__
+S_OR_
+
+ACEINP
+
+Input a 5-letter word:
+> storm
+
+tr___
+S_O__
+S_OR_
+STORM
 
 Correct!
+The solution was found after 4 tries in 54 seconds.
 ```
 
-<b>Example 2:</b> <i>early exit</i>
-```
-Words Virtuoso
-
-Input a 5-letter word:
-> alert
-__er_
-
-Input a 5-letter word:
-> exit
-
-The game is over.
-```
-
-<b>Example 3:</b> <i>input errors</i>
+<b>Example 2:</b> <i>normal execution</i>
 ```
 Words Virtuoso
 
 Input a 5-letter word:
-> trains
-The input isn't a 5-letter word.
+> smile
+
+_____
+
+EILMS
 
 Input a 5-letter word:
-> trouvée
-The input isn't a 5-letter word.
+> speak
+
+_____
+___a_
+
+EIKLMPS
 
 Input a 5-letter word:
-> étage
-One or more letters of the input aren't valid.
+> basic
+
+_____
+___a_
+Ba___
+
+CEIKLMPS
 
 Input a 5-letter word:
-> walls
-The input has duplicate letters.
+> begin
+
+_____
+___a_
+Ba___
+B___n
+
+CEGIKLMPS
 
 Input a 5-letter word:
-> poche
-The input word isn't included in my words list.
+> brain
+
+_____
+___a_
+Ba___
+B___n
+BRA_n
+
+CEGIKLMPS
 
 Input a 5-letter word:
-> exit
+> brand
 
-The game is over.
+_____
+___a_
+Ba___
+B___n
+BRA_n
+BRAND
+
+Correct!
+The solution was found after 7 tries in 108 seconds.
+```
+
+<b>Example 3:</b> <i>secret word guessed on the first try</i>
+```
+Words Virtuoso
+
+Input a 5-letter word:
+swift
+
+SWIFT
+
+Correct!
+Amazing luck! The solution was found at once.
 ```

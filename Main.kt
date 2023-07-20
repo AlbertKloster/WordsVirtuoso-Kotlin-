@@ -29,6 +29,11 @@ fun main(args: Array<String>) {
 
         val secretWord = candidates.elementAt(Random().nextInt(candidates.size))
 
+        val startTime = System.currentTimeMillis()
+        var turn = 1
+        val wrongChars = mutableSetOf<Char>()
+        val clueStrings = mutableListOf<String>()
+
         while (true) {
             println("Input a 5-letter word:")
             val guessWord = readln()
@@ -65,20 +70,30 @@ fun main(args: Array<String>) {
                 } else if (secretWord.contains(guessWord[i].lowercase())) {
                     builder.append(guessWord[i].lowercase())
                 } else {
+                    wrongChars.add(guessWord[i].uppercase().first())
                     builder.append("_")
                 }
             }
 
+            clueStrings.add(builder.toString())
+            println(clueStrings.joinToString("\n\r"))
+
             if (builder.matches(Regex("[A-Z]+"))) {
                 println("Correct!")
+                val duration = System.currentTimeMillis() - startTime
+                if (turn == 1)
+                    println("Amazing luck! The solution was found at once.")
+                else
+                    println("The solution was found after $turn tries in ${duration / 1000} seconds.")
                 break
             }
 
-            println(builder)
+            println()
+            println(wrongChars.sorted().joinToString(""))
+            println()
+            turn++
 
         }
-
-
 
     } catch (e: Exception) {
         println(e.message)
